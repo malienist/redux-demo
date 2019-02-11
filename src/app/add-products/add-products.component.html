@@ -1,0 +1,26 @@
+<h2>Enter Product</h2>
+<div>
+    <form #prodForm="ngForm" (ngSubmit)="onSubmit()">
+        <div>
+            <label for="id">id</label>
+            <input type="text" name="id" placeholder="Enter Product Id" [(ngModel)]="model.id" required>
+        </div>
+        <div>
+            <label for="name">name</label>
+            <input type="text" name="name" placeholder="Enter Product name" [(ngModel)]="model.name" required>
+        </div>
+        <div>
+            <label for="price">price</label>
+            <input type="text" name="price" placeholder="Enter Product price" [(ngModel)]="model.price" required>
+        </div>
+        <div>
+            <label for="category">category</label>
+            <input type="text" name="category" placeholder="Enter Product category" [(ngModel)]="model.category" required>
+        </div>
+        <button [disabled]="prodForm.invalid" type="submit">submit</button>
+    </form>
+</div>
+
+
+
+
