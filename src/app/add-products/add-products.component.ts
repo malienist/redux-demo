@@ -27,7 +27,7 @@ export class AddProductsComponent implements OnInit {
     
     onSubmit(): void {
         console.log('product added');
-        this.ngRedux.dispatch({type: ADD_PRODUCT, product: this.model});
+        this.ngRedux.dispatch({type: ADD_PRODUCT, payload: this.model});
         this.prodForm.reset();
     }
 }

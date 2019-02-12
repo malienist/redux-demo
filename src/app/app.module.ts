@@ -7,12 +7,14 @@ import { IAppState, INITIAL_STATE, rootReducer } from './store';
 import { AppComponent } from './app.component';
 import { ProductsComponent } from './products/products.component';
 import { AddProductsComponent } from './add-products/add-products.component';
+import { CartComponent } from './cart/cart.component';
 
 @NgModule({
     declarations: [
         AppComponent,
         ProductsComponent,
         AddProductsComponent,
+        CartComponent,
     ],
     imports: [
         BrowserModule,

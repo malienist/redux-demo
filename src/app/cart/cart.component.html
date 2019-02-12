@@ -1,0 +1,33 @@
+<div *ngIf="(cartProducts | async)?.length!=0">
+    <h2>Cart Products <button *ngIf="(cartProducts | async).length > 1" (click)="clearCart()">clear cart</button></h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Category</th>
+                <th>Quantity</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let p of cartProducts | async">
+                <td><span>{{ p.id }}</span></td>
+                <td><span>{{ p.name }}</span></td>
+                <td><span>{{ p.price }}</span></td>
+                <td><span>{{ p.category }}</span></td>
+                <td>
+                    <ng-container *ngIf="p.quantity === undefined; else choose">
+                        <span>{{ p.quantity > 0 ? p.quantity : 1 }}</span>
+                    </ng-container>
+                    <ng-template #choose>
+                        <span>decrement {{ p.quantity }} decrement</span>
+                    </ng-template>
+                </td>
+                <td><button (click)="removeFromCart(p)">remove from cart</button></td>
+            </tr>
+        </tbody>
+    </table>
+    <h2>Total Amount: {{ cartAmount | async }}</h2>
+</div>

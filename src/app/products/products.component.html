@@ -1,5 +1,5 @@
 <div *ngIf="(products | async)?.length!=0">
-    <h2>Product List <button (click)="removeAll()">remove all</button></h2>
+    <h2>Product List <button *ngIf="(products | async).length > 1" (click)="removeAll()">remove all</button></h2>
     <table>
         <thead>
             <tr>
@@ -17,6 +17,7 @@
                 <td><span>{{ p.price }}</span></td>
                 <td><span>{{ p.category }}</span></td>
                 <td><button (click)="removeProduct(p)">remove product</button></td>
+                <td><button (click)="addToCart(p)">add to cart</button></td>
             </tr>
         </tbody>
     </table>
