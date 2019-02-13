@@ -26,6 +26,24 @@ interface Action {
     type: string;
     payload?: any
 }
+
+//get total amount of items in cart
+function calculateCartTotal(state): IAppState {
+    let newCart = {...state};
+    let singleItems = newCart.cartProducts.filter(item => item.quantity === undefined || item.quantity === 1);
+    let multipleItems = newCart.cartProducts.filter(item => item.quantity > 1);
+    let singleItemAmount = 0, multipleItemAmount = 0;
+    for(var i = 0; i < singleItems.length; i++){
+        singleItemAmount += +singleItems[i].price;
+    }
+    for(var i = 0; i < multipleItems.length; i++){
+        multipleItemAmount += multipleItems[i].price * multipleItems[i].quantity;
+    }
+    // console.log(`single amount - ${singleItemAmount}, multiple amout - ${multipleItemAmount}`);
+    newCart.totalAmount = singleItemAmount + multipleItemAmount;
+    return newCart;
+}
+
 export function rootReducer(state, action): IAppState {
     switch(action.type) {
         case ADD_PRODUCT:
@@ -51,42 +69,16 @@ export function rootReducer(state, action): IAppState {
                     }
                 }
                 let newCart = {...state};
-                let _totalItemAmount = 0;
-                let _totalAmount = 0;
                 //incrementing quantity of item
                 newCart.cartProducts[duplicateIndex].quantity = newCart.cartProducts[duplicateIndex].quantity === undefined ? 2 : newCart.cartProducts[duplicateIndex].quantity + 1;
-                //get total amount of items in cart
-                let singleItems = newCart.cartProducts.filter(item => item.quantity === undefined || item.quantity === 1);
-                let multipleItems = newCart.cartProducts.filter(item => item.quantity > 1);
-                let singleItemAmount = 0, multipleItemAmount = 0;
-                for(var i = 0; i < singleItems.length; i++){
-                    singleItemAmount += +singleItems[i].price;
-                }
-                for(var i = 0; i < multipleItems.length; i++){
-                    multipleItemAmount += multipleItems[i].price * multipleItems[i].quantity;
-                }
-                // console.log(`single amount - ${singleItemAmount}, multiple amout - ${multipleItemAmount}`);
-                newCart.totalAmount = singleItemAmount + multipleItemAmount;
-                console.log(newCart.totalAmount);
-                return newCart;
+                return calculateCartTotal(state);
             }
             //for items with single quantity
-            let cartArray = state.cartProducts.concat( Object.assign({}, action.payload.product ) );
-            let _totalAmount: number = 0;
-            if(cartArray) {
-                cartArray.forEach(item => {
-                    _totalAmount += parseInt(item.price) * (item.quantity === undefined ? 1 : item.quantity);
-                });
-            }
-            console.log(`total amount - ${_totalAmount}`);
-            return Object.assign({}, state, {
-                cartProducts: cartArray,
-                totalAmount: _totalAmount
-            });
+            state.cartProducts = state.cartProducts.concat( Object.assign({}, action.payload.product ) );
+            return calculateCartTotal(state);
         case REMOVE_FROM_CART:
-            return Object.assign({}, state, {
-                cartProducts: state.cartProducts.filter(t => t.id !== action.payload)
-            });
+            state.cartProducts = state.cartProducts.filter(item => item.id !== action.payload);
+            return calculateCartTotal(state);
         case CLEAR_CART:
             return Object.assign({}, state, {
                cartProducts: [] 
