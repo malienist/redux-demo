@@ -1,25 +1,28 @@
-<div *ngIf="(products | async)?.length!=0">
-    <h2>Product List <button *ngIf="(products | async).length > 1" (click)="removeAll()">remove all</button></h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Name</th>
-                <th>Price</th>
-                <th>Category</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let p of products | async">
-                <td><span>{{ p.id }}</span></td>
-                <td><span>{{ p.name }}</span></td>
-                <td><span>{{ p.price }}</span></td>
-                <td><span>{{ p.category }}</span></td>
-                <td><button (click)="removeProduct(p)">remove product</button></td>
-                <td><button (click)="addToCart(p)">add to cart</button></td>
-            </tr>
-        </tbody>
-    </table>
+<div *ngIf="isLoaded">
+    <div *ngIf="products.length !== 0">
+        <h2>Product List <button *ngIf="products.length > 1" (click)="removeAll()">remove all</button></h2>
+        <br/>
+        <table>
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Category</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let p of products">
+                    <td><span>{{ p.productId }}</span></td>
+                    <td><span>{{ p.name }}</span></td>
+                    <td><span>{{ p.price }}</span></td>
+                    <td><span>{{ p.category }}</span></td>
+                    <td><button (click)="removeProduct(p)">remove product</button></td>
+                    <td><button (click)="addToCart(p)">add to cart</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 <app-cart></app-cart>

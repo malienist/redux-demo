@@ -2,7 +2,7 @@ import { ADD_PRODUCT, REMOVE_PRODUCT, REMOVE_ALL_PRODUCTS, ADD_TO_CART,
     REMOVE_FROM_CART, CLEAR_CART, INCREMENT, DECREMENT } from './actions';
 
 export interface IProduct {
-    id: string;
+    productId: number;
     name: string;
     price: string;
     category: string;
@@ -14,12 +14,7 @@ export interface IAppState {
     totalAmount: number;
 }
 export const INITIAL_STATE: IAppState = {
-    products: [
-        {id: '12', name: 'Nike', price: '500', category: 'shoes'},
-        {id: '13', name: 'Adidas', price: '1000', category: 'high tops'},
-        {id: '14', name: 'Puma', price: '2000', category: 'sneakers'},
-        {id: '15', name: 'Reebok', price: '500', category: 'yeezy'}
-    ],
+    products: [],
     cartProducts: [],
     totalAmount: 0
 };

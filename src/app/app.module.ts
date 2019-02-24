@@ -18,6 +18,7 @@ import { AddProductsComponent } from './add-products/add-products.component';
 import { CartComponent } from './cart/cart.component';
 import { LoginComponent } from './login/login.component';
 import { AddBusinessComponent } from './add-business/add-business.component';
+import { ProductService } from './product.service';
 
 @NgModule({
     declarations: [
@@ -38,7 +39,8 @@ import { AddBusinessComponent } from './add-business/add-business.component';
     providers: [
         AuthorizeService,
         LoggerGuard,
-        BusinessService
+        BusinessService,
+        ProductService
     ],
     bootstrap: [AppComponent]
 })
