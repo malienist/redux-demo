@@ -1,0 +1,14 @@
+<div>
+    <form #bform="ngForm" (ngSubmit)="onSubmit(bform.value)">
+        <div>
+            <input type="text" placeholder="Enter Person Name" name="personname" ngModel>
+        </div>
+        <div>
+            <input type="text" placeholder="Enter Business Name" name="businessname" ngModel>
+        </div>
+        <div>
+            <input type="text" placeholder="Enter Business GST Number" name="businessgst" ngModel>
+        </div>
+        <button type="submit">add business</button>
+    </form>
+</div>

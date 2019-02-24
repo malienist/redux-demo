@@ -1,3 +1,5 @@
-<!-- <app-add-products></app-add-products> -->
-<app-products></app-products>
-<app-cart></app-cart>
+<a [routerLink]="['/home']" [routerLinkActive]="['active']">home</a>
+<a [routerLink]="['/login']" [routerLinkActive]="['active']">login</a>
+<a [routerLink]="['/addproduct']">add product</a>
+<a [routerLink]="['/addbusiness']" [routerLinkActive]="['active']">add business</a>
+<router-outlet></router-outlet>

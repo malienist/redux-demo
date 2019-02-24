@@ -1,0 +1,17 @@
+<ng-container *ngIf="!loggedIn; else logged">
+    <div>
+        <form #myForm="ngForm" (ngSubmit)="onSubmit(username.value, password.value)">
+            <div>
+                <input type="text" placeholder="Enter Username" name="username" #username required>
+            </div>
+            <div>
+                <input type="password" placeholder="Enter Password" name="password" #password required>
+            </div>
+            <input [disabled]="myForm.invalid" type="submit" value="login">
+        </form>
+    </div>
+</ng-container>
+<ng-template #logged>
+    <div>user ogged in</div>
+    <button (click)="logout()">logout</button>
+</ng-template>

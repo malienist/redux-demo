@@ -1,4 +1,4 @@
-<div *ngIf="(cartProducts | async)?.length!=0">
+<div *ngIf="(cartProducts | async)?.length != 0">
     <h2>Cart Products <button *ngIf="(cartProducts | async).length > 1" (click)="clearCart()">clear cart</button></h2>
     <table>
         <thead>
@@ -18,12 +18,7 @@
                 <td><span>{{ p.price }}</span></td>
                 <td><span>{{ p.category }}</span></td>
                 <td>
-                    <ng-container *ngIf="p.quantity === undefined; else choose">
-                        <span>{{ p.quantity > 0 ? p.quantity : 1 }}</span>
-                    </ng-container>
-                    <ng-template #choose>
-                        <span>decrement {{ p.quantity }} decrement</span>
-                    </ng-template>
+                    <span><button (click)="decrement(p)">-</button> {{ p.quantity === undefined ? 1 : p.quantity }} <button (click)="increment(p)">+</button></span>
                 </td>
                 <td><button (click)="removeFromCart(p)">remove from cart</button></td>
             </tr>

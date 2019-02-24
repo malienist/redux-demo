@@ -1,4 +1,5 @@
-import { ADD_PRODUCT, REMOVE_PRODUCT, REMOVE_ALL_PRODUCTS, ADD_TO_CART, REMOVE_FROM_CART, CLEAR_CART } from './actions';
+import { ADD_PRODUCT, REMOVE_PRODUCT, REMOVE_ALL_PRODUCTS, ADD_TO_CART, 
+    REMOVE_FROM_CART, CLEAR_CART, INCREMENT, DECREMENT } from './actions';
 
 export interface IProduct {
     id: string;
@@ -26,24 +27,6 @@ interface Action {
     type: string;
     payload?: any
 }
-
-//get total amount of items in cart
-function calculateCartTotal(state): IAppState {
-    let newCart = {...state};
-    let singleItems = newCart.cartProducts.filter(item => item.quantity === undefined || item.quantity === 1);
-    let multipleItems = newCart.cartProducts.filter(item => item.quantity > 1);
-    let singleItemAmount = 0, multipleItemAmount = 0;
-    for(var i = 0; i < singleItems.length; i++){
-        singleItemAmount += +singleItems[i].price;
-    }
-    for(var i = 0; i < multipleItems.length; i++){
-        multipleItemAmount += multipleItems[i].price * multipleItems[i].quantity;
-    }
-    // console.log(`single amount - ${singleItemAmount}, multiple amout - ${multipleItemAmount}`);
-    newCart.totalAmount = singleItemAmount + multipleItemAmount;
-    return newCart;
-}
-
 export function rootReducer(state, action): IAppState {
     switch(action.type) {
         case ADD_PRODUCT:
@@ -83,6 +66,42 @@ export function rootReducer(state, action): IAppState {
             return Object.assign({}, state, {
                cartProducts: [] 
             });
+        case DECREMENT:
+            return decrementItem(state, action.payload);
+        case INCREMENT:
+            return incrementItem(state, action.payload);
     }
     return state;
+}
+
+//decrement item in cart
+function decrementItem(oldState, id): IAppState {
+    let newState = {...oldState};
+    let decreasedProduct = newState.cartProducts.filter(item => item.id === id);
+    decreasedProduct[0].quantity = decreasedProduct[0].quantity <= 0 || decreasedProduct[0].quantity === undefined ? 0 : decreasedProduct[0].quantity - 1;
+    return calculateCartTotal(newState);
+}
+//increment item in cart
+function incrementItem(oldState, id): IAppState {
+    let newState = {...oldState};
+    let increasedItem = newState.cartProducts.filter(t => t.id === id);
+    increasedItem[0].quantity = increasedItem[0].quantity === undefined ? 2 : increasedItem[0].quantity + 1;
+    return calculateCartTotal(newState);
+}
+
+//get total amount of items in cart
+function calculateCartTotal(oldState): IAppState {
+    let newState = {...oldState};
+    let singleItems = newState.cartProducts.filter(item => item.quantity === undefined || item.quantity === 1);
+    let multipleItems = newState.cartProducts.filter(item => item.quantity > 1);
+    let singleItemAmount = 0, multipleItemAmount = 0;
+    for(var i = 0; i < singleItems.length; i++){
+        singleItemAmount += +singleItems[i].price;
+    }
+    for(var i = 0; i < multipleItems.length; i++){
+        multipleItemAmount += multipleItems[i].price * multipleItems[i].quantity;
+    }
+    // console.log(`single amount - ${singleItemAmount}, multiple amout - ${multipleItemAmount}`);
+    newState.totalAmount = singleItemAmount + multipleItemAmount;
+    return newState;
 }
