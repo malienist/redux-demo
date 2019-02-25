@@ -4,8 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 //routing
 import { AppRoutingModule } from './app-routing.module';
-//store
+//redux + redux thunk
 import { NgReduxModule, NgRedux } from '@angular-redux/store';
+import thunk from 'redux-thunk';
+//store
 import { IAppState, INITIAL_STATE, rootReducer } from './store';
 //services
 import { AuthorizeService } from './authorize.service';
@@ -46,6 +48,6 @@ import { ProductService } from './product.service';
 })
 export class AppModule { 
     constructor(ngRedux: NgRedux<IAppState>){
-        ngRedux.configureStore(rootReducer, INITIAL_STATE);
+        ngRedux.configureStore(rootReducer, INITIAL_STATE, [thunk], []);
     }
 }
