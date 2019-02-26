@@ -8,7 +8,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { NgReduxModule, NgRedux } from '@angular-redux/store';
 import thunk from 'redux-thunk';
 //store
-import { IAppState, INITIAL_STATE, rootReducer } from './store';
+import { IAppState, INITIAL_STATE, rootReducer, ThunkClass } from './store';
 //services
 import { AuthorizeService } from './authorize.service';
 import { BusinessService } from './business.service';
@@ -42,7 +42,8 @@ import { ProductService } from './product.service';
         AuthorizeService,
         LoggerGuard,
         BusinessService,
-        ProductService
+        ProductService,
+        ThunkClass
     ],
     bootstrap: [AppComponent]
 })

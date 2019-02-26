@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NgRedux, select } from '@angular-redux/store';
-import { IAppState, ThunkClass } from '../store';
+import { IAppState, ThunkClass, IProduct } from '../store';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -11,25 +11,20 @@ import { Observable } from 'rxjs';
 export class ProductsComponent implements OnInit {
     @select() products;
     @select() isFetching;
-    thunk: any;
 
-    constructor(private ngRedux: NgRedux<IAppState>) { 
-        this.thunk = new ThunkClass();
+    constructor(private ngRedux: NgRedux<IAppState>, private _thunk: ThunkClass) { 
     }
 
     ngOnInit() {
-        this.ngRedux.dispatch(this.thunk.loadInitialState());
+        this.ngRedux.dispatch<any>(this._thunk.loadInitialState());
     }
-    
-    // addToCart(product) {
-    //     this.ngRedux.dispatch({type: ADD_TO_CART, payload: {product: product, id: product.id}});
-    // }
 
-    // removeProduct(product) {
-    //     this.ngRedux.dispatch({type: REMOVE_PRODUCT, payload: product.id});
-    // }
+    decrement(product: IProduct) {
+        console.log(`product mongo _id - ${product.id}`);
+        this.ngRedux.dispatch<any>(this._thunk.decrementItem(product.id));
+    }
 
-    // removeAll() {
-    //     this.ngRedux.dispatch({type: REMOVE_ALL_PRODUCTS});
+    // removeProduct(productId) {
+    //     this.ngRedux.dispatch(this._thunk.removeProduct(productId));
     // }
 }

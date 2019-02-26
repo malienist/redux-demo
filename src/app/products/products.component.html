@@ -1,6 +1,3 @@
-<div *ngIf="isFetching | async">
-    Loading...
-</div>
 <div *ngIf="products | async">
     <h2>Product List</h2>
     <br/>
@@ -21,7 +18,16 @@
                 <td><span>{{ p.name }}</span></td>
                 <td><span>{{ p.price }}</span></td>
                 <td><span>{{ p.category }}</span></td>
-                <td><span>{{ p.quantity }}</span></td>
+                <td>
+                    <span *ngIf="p.quantity > 0; else nullproduct">
+                        <button (click)="decrement(p)">-</button>
+                        {{ p.quantity }}
+                        <button (click)="increment(p)">+</button>
+                    </span>
+                    <ng-template #nullproduct>
+                        <em>{{ p.quantity }}</em>
+                    </ng-template>
+                </td>
                 <td><button (click)="removeProduct(p)">remove product</button></td>
                 <td><button (click)="addToCart(p)">add to cart</button></td>
             </tr>

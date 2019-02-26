@@ -1,10 +1,14 @@
 import { ADD_PRODUCT, REMOVE_PRODUCT, REMOVE_ALL_PRODUCTS, ADD_TO_CART, 
-    REMOVE_FROM_CART, CLEAR_CART, INCREMENT, DECREMENT, FETCH_PRODUCTS, RECEIVED_PRODUCTS, RECEIVED_ERROR } from './actions';
+    REMOVE_FROM_CART, CLEAR_CART, INCREMENT, DECREMENT, DECREMENT_OK, DECREMENT_FAILED, FETCH_PRODUCTS, RECEIVED_PRODUCTS, RECEIVED_ERROR } from './actions';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
+import { logger } from 'redux-logger';
+import axios from 'axios';
+import { Injectable } from '@angular/core';
 
-export const store = createStore(rootReducer, applyMiddleware(thunk));
+export const store = createStore(rootReducer, applyMiddleware(thunk, logger));
 
+//store change events
 store.subscribe(() => console.log('STORE CHANGED', store.getState()));
 
 //interfaces
@@ -91,17 +95,31 @@ export function rootReducer(state = INITIAL_STATE, action): IAppState {
                 isFetching: true
             });
         case RECEIVED_PRODUCTS:
-            console.log(`received products action - ${state.isFetching}`);
+            console.log(`received products[] - ${JSON.stringify(action.payload.products)}`);
             return Object.assign({}, state, {
-                products: state.products.concat(action.payload),
-                isFetching: false
+                products: action.payload.products,
+                isFetching: false,
             });
         case RECEIVED_ERROR:
             return Object.assign({}, state, {
                 isError: true,
                 isFetching: false
             });
+        case DECREMENT:
+            return Object.assign({}, state, {
+                isFetching: true
+            });
+        case DECREMENT_OK:
+            return Object.assign({}, state, {
+                products: state.products.filter(item => item.id !== action.payload),
+                isFetching: false
+            });
+        case DECREMENT_FAILED:
+            return Object.assign({}, state, {
+                isError: true
+            });
     }
+    // console.log(`products in current state - ${state}`);
     return state;
 }
 
@@ -114,7 +132,10 @@ export const fetchProducts = () => {
 export const receivedProducts = (data) => {
     return {
         type: RECEIVED_PRODUCTS,
-        payload: data
+        payload: {
+            products: data,
+            isFetching: false
+        }
     }
 }
 export const receivedError = () => {
@@ -122,20 +143,48 @@ export const receivedError = () => {
         type: RECEIVED_ERROR
     }
 }
+export const removeProduct = (productId) => {
+    return {
+        type: REMOVE_PRODUCT,
+        payload: productId
+    }
+}
+export const decrement = (id) => {
+    return {
+        type: DECREMENT,
+        payload: id,
+        isFetching: true
+    }
+}
+export const decrementSuccess = (id) => {
+    return {
+        type: DECREMENT_OK,
+        payload: id
+    }
+}
+export const decrementFailed = (id) => {
+    return {
+        type: DECREMENT_FAILED,
+        isError: true
+    }
+}
 
 // thunk actions
+@Injectable({
+    providedIn: 'root'
+})
 export class ThunkClass {
+    //load initial state
     loadInitialState() {
         store.dispatch(fetchProducts());
-        return function (dispatch, getState) {
-            return fetch(`http://localhost:4000/products/getproducts`)
-            .then(data => data.json())
-            .then(data => {
+        return (dispatch) => {
+            axios.get(`http://localhost:4000/products/getproducts`)
+            .then(res => {
                 // console.log(`fetch action - response received - ${JSON.stringify(data)}`);
-                if(data.message === "Not Found") console.log(`fetch errored`);
+                if(!res) console.log(`fetch errored`);
                 else {
-                    console.log(`thunk action - fetched result - ${JSON.stringify(data)}`);
-                    dispatch(receivedProducts(data));
+                    console.log(`thunk action - fetched result - ${res}`);
+                    dispatch(receivedProducts(res.data));
                 }
             })
             .catch(err => {
@@ -144,7 +193,29 @@ export class ThunkClass {
             });
         }
     } 
-}
+    // decrement product
+    decrementItem(prodId) {
+        console.log(`decrement id - ${prodId}`);
+        store.dispatch(decrement(prodId));
+        return (dispatch) => {
+            axios.delete(`http://localhost:4000/products/deleteproduct`, {params: {
+                id: prodId
+            }})
+            .then(data => {
+                console.log(`decrement thunk received data - ${data}`);
+                if(!data) console.log(`decrement failed`);
+                else {
+                    console.log(`thunk action - decreased product quantity - ${data}`);
+                    dispatch(decrementSuccess(prodId));
+                }
+            })
+            .catch(err => {
+                console.log(`decrement thunk caught error - ${err}`);
+                dispatch(decrementFailed(prodId));
+            });
+        }
+    }
+}    
 
 //decrement item in cart
 function decrementItem(oldState, id): IAppState {
