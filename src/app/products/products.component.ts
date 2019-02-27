@@ -20,8 +20,8 @@ export class ProductsComponent implements OnInit {
     }
 
     decrement(product: IProduct) {
-        console.log(`product mongo _id - ${product.id}`);
-        this.ngRedux.dispatch<any>(this._thunk.decrementItem(product.id));
+        // console.log(`product mongo _id - ${product}`);
+        this.ngRedux.dispatch<any>(this._thunk.decrementItem(product));
     }
 
     // removeProduct(productId) {

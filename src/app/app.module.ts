@@ -2,13 +2,11 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+//store
+import { NgReduxModule, NgRedux } from '@angular-redux/store';
+import { ThunkClass, IAppState, store } from './store';
 //routing
 import { AppRoutingModule } from './app-routing.module';
-//redux + redux thunk
-import { NgReduxModule, NgRedux } from '@angular-redux/store';
-import thunk from 'redux-thunk';
-//store
-import { IAppState, INITIAL_STATE, rootReducer, ThunkClass } from './store';
 //services
 import { AuthorizeService } from './authorize.service';
 import { BusinessService } from './business.service';
@@ -21,6 +19,7 @@ import { CartComponent } from './cart/cart.component';
 import { LoginComponent } from './login/login.component';
 import { AddBusinessComponent } from './add-business/add-business.component';
 import { ProductService } from './product.service';
+
 
 @NgModule({
     declarations: [
@@ -49,6 +48,6 @@ import { ProductService } from './product.service';
 })
 export class AppModule { 
     constructor(ngRedux: NgRedux<IAppState>){
-        ngRedux.configureStore(rootReducer, INITIAL_STATE, [thunk], []);
+        ngRedux.provideStore(store);
     }
 }

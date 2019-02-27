@@ -17,7 +17,8 @@ export class AddProductsComponent implements OnInit {
         id: '',
         name: '',
         price: '',
-        category: ''
+        category: '',
+        quantity: 0
     };
 
     constructor(private ngRedux: NgRedux<IAppState>) { }

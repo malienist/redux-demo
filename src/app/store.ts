@@ -1,15 +1,16 @@
 import { ADD_PRODUCT, REMOVE_PRODUCT, REMOVE_ALL_PRODUCTS, ADD_TO_CART, 
-    REMOVE_FROM_CART, CLEAR_CART, INCREMENT, DECREMENT, DECREMENT_OK, DECREMENT_FAILED, FETCH_PRODUCTS, RECEIVED_PRODUCTS, RECEIVED_ERROR } from './actions';
-import { createStore, applyMiddleware } from 'redux';
-import thunk from 'redux-thunk';
-import { logger } from 'redux-logger';
+    REMOVE_FROM_CART, CLEAR_CART, INCREMENT, DECREMENT, DECREMENT_OK, DECREMENT_FAILED, FETCH_PRODUCTS, RECEIVED_PRODUCTS, RECEIVED_ERROR, DECREASE_QUANTITY } from './actions';
 import axios from 'axios';
 import { Injectable } from '@angular/core';
+import { Store, createStore, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
+import { createLogger } from 'redux-logger';
 
-export const store = createStore(rootReducer, applyMiddleware(thunk, logger));
+
+export const store: Store<IAppState> = createStore(rootReducer, applyMiddleware(thunk, createLogger({collapsed: true})));
 
 //store change events
-store.subscribe(() => console.log('STORE CHANGED', store.getState()));
+// store.subscribe(() => console.log('STORE CHANGED', store.getState()));
 
 //interfaces
 export interface IProduct {
@@ -90,14 +91,14 @@ export function rootReducer(state = INITIAL_STATE, action): IAppState {
         //     console.log(`increment-${action.payload}`);
         //     return incrementItem(state, action.payload);
         case FETCH_PRODUCTS:
-            console.log(`loading initial state - ${JSON.stringify(state)}`);
+            // console.log(`loading initial state`);
             return Object.assign({}, state, {
                 isFetching: true
             });
         case RECEIVED_PRODUCTS:
-            console.log(`received products[] - ${JSON.stringify(action.payload.products)}`);
+            // console.log(`received products`);
             return Object.assign({}, state, {
-                products: action.payload.products,
+                products: state.products.concat(action.payload),
                 isFetching: false,
             });
         case RECEIVED_ERROR:
@@ -110,14 +111,23 @@ export function rootReducer(state = INITIAL_STATE, action): IAppState {
                 isFetching: true
             });
         case DECREMENT_OK:
+            console.log(`DECREMENT_OK`);
             return Object.assign({}, state, {
                 products: state.products.filter(item => item.id !== action.payload),
                 isFetching: false
             });
         case DECREMENT_FAILED:
             return Object.assign({}, state, {
-                isError: true
+                isError: true,
+                isFetching: false
             });
+        case DECREASE_QUANTITY:
+            let _newState = {...state};
+            _newState.isFetching = false;
+            let index = _newState.products.findIndex(item => item.id === action.payload);
+            // console.log(`REDUCER - QUANTITY - ${_newState.products[index].quantity}`);
+            _newState.products[index].quantity = _newState.products[index].quantity - 1;
+            return _newState;
     }
     // console.log(`products in current state - ${state}`);
     return state;
@@ -132,10 +142,7 @@ export const fetchProducts = () => {
 export const receivedProducts = (data) => {
     return {
         type: RECEIVED_PRODUCTS,
-        payload: {
-            products: data,
-            isFetching: false
-        }
+        payload: data
     }
 }
 export const receivedError = () => {
@@ -152,8 +159,7 @@ export const removeProduct = (productId) => {
 export const decrement = (id) => {
     return {
         type: DECREMENT,
-        payload: id,
-        isFetching: true
+        payload: id
     }
 }
 export const decrementSuccess = (id) => {
@@ -162,10 +168,15 @@ export const decrementSuccess = (id) => {
         payload: id
     }
 }
+export const decreaseQuantity = (id) => {
+    return {
+        type: DECREASE_QUANTITY,
+        payload: id
+    }
+}
 export const decrementFailed = (id) => {
     return {
         type: DECREMENT_FAILED,
-        isError: true
     }
 }
 
@@ -183,7 +194,7 @@ export class ThunkClass {
                 // console.log(`fetch action - response received - ${JSON.stringify(data)}`);
                 if(!res) console.log(`fetch errored`);
                 else {
-                    console.log(`thunk action - fetched result - ${res}`);
+                    // console.log(`thunk action - fetched result - ${res}`);
                     dispatch(receivedProducts(res.data));
                 }
             })
@@ -194,25 +205,46 @@ export class ThunkClass {
         }
     } 
     // decrement product
-    decrementItem(prodId) {
-        console.log(`decrement id - ${prodId}`);
-        store.dispatch(decrement(prodId));
-        return (dispatch) => {
-            axios.delete(`http://localhost:4000/products/deleteproduct`, {params: {
-                id: prodId
-            }})
-            .then(data => {
-                console.log(`decrement thunk received data - ${data}`);
-                if(!data) console.log(`decrement failed`);
-                else {
-                    console.log(`thunk action - decreased product quantity - ${data}`);
-                    dispatch(decrementSuccess(prodId));
-                }
-            })
-            .catch(err => {
-                console.log(`decrement thunk caught error - ${err}`);
-                dispatch(decrementFailed(prodId));
-            });
+    decrementItem(product) {
+        // console.log(`decrement id - ${product.id}, product quantity - ${product.quantity}`);
+        store.dispatch(decrement(product.id));
+        if(product.quantity === 1 || product.quantity === "1") {
+            console.log(`DELETION`);
+            return (dispatch) => {
+                axios.delete(`http://localhost:4000/products/deleteproduct`, {params: {
+                    id: product.id
+                }})
+                .then(data => {
+                    console.log(`decrement thunk received data - ${data}`);
+                    if(!data) console.log(`decrement failed`);
+                    else {
+                        console.log(`thunk action - decreased product quantity - ${data}`);
+                        store.dispatch(dispatch(decrementSuccess(product.id)));
+                    }
+                })
+                .catch(err => {
+                    console.log(`decrement thunk caught error - ${err}`);
+                    store.dispatch(dispatch(decrementFailed(product.id)));
+                });
+            }
+        } else {
+            // console.log(`UPDATION QUANTITY - ${product.quantity}`);
+            return (dispatch) => {
+                setTimeout(() => {
+                    axios.put(`http://localhost:4000/products/updatequantity?id=${product.id}&quantity=${product.quantity}`)
+                    .then(data => {
+                        if(!data) console.log(`decrement failed #2`);
+                        else {
+                            // console.log(`thunk action - decreased product quantity #2 - ${data}`);
+                            dispatch(decreaseQuantity(product.id));
+                        }
+                    })
+                    .catch(err => {
+                        console.log(`decrement thunk caught error #2 - ${err}`);
+                        dispatch(decrementFailed(product.id));
+                    });
+                }, 2500);
+            }
         }
     }
 }    

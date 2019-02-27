@@ -1,3 +1,6 @@
+<div *ngIf="isFetching | async">
+    <h3>Loading...</h3>
+</div>
 <div *ngIf="products | async">
     <h2>Product List</h2>
     <br/>
