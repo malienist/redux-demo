@@ -25,14 +25,14 @@
                     <span *ngIf="p.quantity > 0; else nullproduct">
                         <button (click)="decrement(p)">-</button>
                         {{ p.quantity }}
-                        <button (click)="increment(p)">+</button>
+                        <!-- <button (click)="increment(p)">+</button> -->
                     </span>
                     <ng-template #nullproduct>
                         <em>{{ p.quantity }}</em>
                     </ng-template>
                 </td>
-                <td><button (click)="removeProduct(p)">remove product</button></td>
-                <td><button (click)="addToCart(p)">add to cart</button></td>
+                <!-- <td><button (click)="removeProduct(p)">remove product</button></td> -->
+                <!-- <td><button (click)="addToCart(p)">add to cart</button></td> -->
             </tr>
         </tbody>
     </table>
